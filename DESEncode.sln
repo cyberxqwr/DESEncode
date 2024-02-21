@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34607.119
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DESEncode", "DESEncode\DESEncode.csproj", "{F5A1357F-A3B8-4F23-A128-9AF2E3F095B8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F5A1357F-A3B8-4F23-A128-9AF2E3F095B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5A1357F-A3B8-4F23-A128-9AF2E3F095B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5A1357F-A3B8-4F23-A128-9AF2E3F095B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5A1357F-A3B8-4F23-A128-9AF2E3F095B8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E6328B28-08F6-4726-BFFB-EA4800140AA5}
+	EndGlobalSection
+EndGlobal
