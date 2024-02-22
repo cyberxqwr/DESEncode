@@ -12,9 +12,15 @@ namespace DESEncode.Encryption
 
         private string encWord;
         private string key;
+        private string keyPC;
         private string hashedWord;
-        private int[] hashTable;
-
+        private int[] IPTable;
+        private int[] PCTable;
+        
+        private List<string> bits64 = new List<string>();
+        private List<string> bits64IP = new List<string>();
+        private List<string> leftBits32 = new List<string>();
+        private List<string> rightBits32 = new List<string>();
 
         // Disposeable
         bool is_disposed = false;
@@ -24,8 +30,11 @@ namespace DESEncode.Encryption
 
             this.encWord = encWord;
             this.key = key;
-            HashTable hT = new HashTable();
-            hashTable = hT.hashingTable();
+            using (HashTable hT = new HashTable())
+            {
+                IPTable = hT.IPTable();
+                PCTable = hT.PCTable();
+            }
             RegulateEncryption();
         }
 
@@ -43,58 +52,78 @@ namespace DESEncode.Encryption
         private void RegulateEncryption()
         {
 
-            int keyBits = bitCount(key);
+            StringBuilder sb = new StringBuilder();
 
-            if (keyBits < 56)
-            {
+            if (encWord.Length % 64 != 0) {
+            
+                while (encWord.Length % 64 != 0) {
 
-                StringBuilder sbk = new StringBuilder((56 / 8) - (keyBits / 8));
-
-                while (keyBits != 56)
-                {
-
-                    sbk.Append("0");
-                    keyBits += 8;
+                    sb.Append("0");
+                    encWord += sb.ToString();
                 }
 
-                key = key + sbk.ToString();
-            }
-            else key = key.Substring(0, 7);
-
-            int encBits = bitCount(encWord);
-
-            if (encBits < 128)
-            {
-
-                StringBuilder sbk = new StringBuilder((128 / 8) - (encBits / 8));
-
-                while (encBits != 128)
+                if (encWord.Length % 2 != 0)
                 {
 
-                    sbk.Append("0");
-                    encBits += 8;
+                    while (encWord.Length % 2 != 0)
+                    {
+                        sb.Append("0");
+                        encWord += sb.ToString();
+                    }
                 }
-
-                encWord = encWord + sbk.ToString();
             }
-            else encWord = encWord.Substring(0, 16);
+
+            for (int i = 0; i < encWord.Length; i+=64) bits64.Add(encWord.Substring(i, 64));
+
+            IP();
+            Split64Bits();
+
+            sb.Clear();
+
+            if (key.Length % 64 != 0)
+            {
+
+                while(key.Length % 64 != 0)
+                {
+
+                    sb.Append("0");
+                    key += sb.ToString();
+                }
+            }
+
+            TransformTo56Bits();
 
         }
 
-        public int bitCount(string text)
+        private void IP()
+        {
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < bits64.Count; i++ )
+            {
+
+                for (int j = 0; j < bits64[i].Length; j++) sb.Append(bits64[i].ElementAt(IPTable.ElementAt(j)));
+
+                bits64IP.Add(sb.ToString());
+
+                sb.Clear();
+            }
+        }
+
+        public int BitCount(string text)
         {
             return Encoding.UTF8.GetByteCount(text) * 8;
         }
 
-        private void startShuffling()
+        private void StartShuffling()
         {
             char[] newEnc = { };
 
-            StringBuilder sb = new StringBuilder(bitCount(encWord) / 8);
-            for (int i = 0; i < bitCount(encWord) / 8; i += 2)
+            StringBuilder sb = new StringBuilder(BitCount(encWord) / 8);
+            for (int i = 0; i < BitCount(encWord) / 8; i += 2)
             {
-                newEnc[hashTable[i]] = encWord[hashTable[i]];
-                newEnc[hashTable[i + 1]] = encWord[hashTable[i + 1]];
+                
             }
 
             foreach (char c in newEnc) sb.Append(c);
@@ -102,7 +131,30 @@ namespace DESEncode.Encryption
             encWord = sb.ToString();
         }
 
+        private void Split64Bits()
+        {
 
+            for (int i = 0; i < bits64IP.Count(); i++)
+            {
+
+                leftBits32.Add(bits64IP[i].Substring(0, 32));
+                rightBits32.Add(bits64IP[i].Substring(32, 32));
+            }
+        }
+
+        public string TransformTo56Bits()
+        {
+            key = "0001001100110100010101110111100110011011101111001101111111110001";
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < PCTable.Count(); i++) {
+
+                sb.Append(key[PCTable[i]]);
+                if (i % 7 == 6 && i < PCTable.Count()) sb.Append(' ');
+            }
+
+            return keyPC = sb.ToString();
+        }
 
 
 

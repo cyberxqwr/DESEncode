@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -60,6 +61,20 @@ namespace DESEncode.Workspace
 
         }
 
+        private string TurnIntoHex(string text)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (char c in text)
+            {
+                if (c != ' ') { sb.Append(Convert.ToByte(c).ToString("x")); }
+                else { sb.Append(c); }
+
+            }
+
+            return sb.ToString();
+        }
+
         private void StartReading()
         {
 
@@ -78,7 +93,13 @@ namespace DESEncode.Workspace
 
             }
 
-            //if (programInput == 1 || programInput == 3) encWord = CheckForViolations(encWord);
+            encWord = TurnIntoHex(encWord);
+
+            using (HashTable hashTable = new HashTable())
+            {
+
+                encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
+            }
 
             Console.WriteLine(util.options.ElementAt(1));
             key = Console.ReadLine();
@@ -92,10 +113,14 @@ namespace DESEncode.Workspace
                     Console.WriteLine(util.exceptions.ElementAt(1));
                     key = Console.ReadLine();
                 }
-
             }
 
-            //if (programInput == 1 || programInput == 3) key = CheckForViolations(key);
+            using (HashTable hashTable = new HashTable())
+            {
+
+                key = hashTable.HexStringToBinary(TurnIntoHex(key));
+            }
+
         }
 
         private void StartHashing(int parameter)
