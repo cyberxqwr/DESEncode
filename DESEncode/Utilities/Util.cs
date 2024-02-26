@@ -19,17 +19,17 @@ namespace DESEncode.Utilities
             options.Add("Įveskite tekstą:");
             options.Add("Įveskite raktą:");
             options.Add("[0] - Užbaigti programą");
-            options.Add("[1] - Pradėti BASIC šifravimą");
-            options.Add("[2] - Pradėti ASCII šifravimą");
-            options.Add("[3] - Pradėti BASIC iššifravimą");
-            options.Add("[4] - Pradėti ASCII iššifravimą");
+            options.Add("[1] - Pradėti DES algoritmo šifravimą");
+            options.Add("[2] - ");
+            options.Add("[3] - ");
+            options.Add("[4] - ");
 
             exceptions.Add("Klaida. Neįvestas tekstas. Įveskite jį vėl.");
             exceptions.Add("Klaida. Neįvestas raktas. Įveskite jį vėl.");
             exceptions.Add("Klaida. Neįvykdytas pasirinkimas.");
-            exceptions.Add("Klaida. BASIC šifruotė leidžia tik raides bei skaičius. Prašome pataisyti tekstą");
+            exceptions.Add("");
 
-            info.Add("Jūsų užšifruotas slaptažodis: ");
+            info.Add("Jūsų užšifruotas tekstas: ");
             info.Add("Jūsų iššifruotas slaptažodis: ");
         }
     }

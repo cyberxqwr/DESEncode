@@ -40,15 +40,12 @@ namespace DESEncode.Workspace
                         break;
                     case 2:
                         StartReading();
-                        StartHashing(2);
                         break;
                     case 3:
                         StartReading();
-                        StartHashing(3);
                         break;
                     case 4:
                         StartReading();
-                        StartHashing(4);
                         break;
                     case 0:
                         return;
@@ -93,12 +90,11 @@ namespace DESEncode.Workspace
 
             }
 
-            encWord = TurnIntoHex(encWord);
 
             using (HashTable hashTable = new HashTable())
             {
-
-                encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
+                encWord = hashTable.HexStringToBinary("0123456789ABCDEF"); 
+                //encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
             }
 
             Console.WriteLine(util.options.ElementAt(1));
@@ -118,7 +114,9 @@ namespace DESEncode.Workspace
             using (HashTable hashTable = new HashTable())
             {
 
-                key = hashTable.HexStringToBinary(TurnIntoHex(key));
+                key = hashTable.HexStringToBinary("133457799BBCDFF1");
+
+                //key = hashTable.HexStringToBinary(TurnIntoHex(key));
             }
 
         }
@@ -132,13 +130,13 @@ namespace DESEncode.Workspace
                 switch (parameter)
                 {
                     case 1:
-                        Console.WriteLine(util.info.ElementAt(0) + ENC.StartHashing());
+                        Console.WriteLine(util.info.ElementAt(0) + ENC.HashedValue());
                         break;
                     case 2:
 
                         break;
                     case 3:
-                        Console.WriteLine(util.info.ElementAt(1) + ENC.StartUnhashing());
+                        //Console.WriteLine(util.info.ElementAt(1) + ENC.StartUnhashing());
                         break;
                     case 4:
 
@@ -146,27 +144,6 @@ namespace DESEncode.Workspace
                 }
 
             }
-
-
-        }
-
-        private string CheckForViolations(string text)
-        {
-
-            if (!par.IsMatch(text))
-            {
-                return text;
-            }
-            else
-            {
-                do
-                {
-                    Console.WriteLine(util.exceptions.ElementAt(3));
-                    text = Console.ReadLine();
-                } while (par.IsMatch(text));
-            }
-
-            return text; ;
 
         }
 

@@ -16,6 +16,7 @@ namespace DESEncode.Encryption
         private string keyPC;
         private string hashedWord;
         private int[] IPTable;
+        private int[] FinalIPTable;
         private int[] PCTable;
         private int[] PC2Table;
         private int[] EBIT;
@@ -51,6 +52,10 @@ namespace DESEncode.Encryption
         private List<string> eLeftBits32 = new List<string>();
         private List<string> eRightBits32 = new List<string>();
 
+        // HashedMessage
+
+        private List<string> hashedMessage = new List<string>();
+
         // Disposeable
         bool is_disposed = false;
 
@@ -66,18 +71,19 @@ namespace DESEncode.Encryption
                 PC2Table = hT.PC2Table();
                 EBIT = hT.EBITs();
                 S = hT.STable();
-                int[,] S1 = (int[,])S[0];
-                int[,] S2 = (int[,])S[1];
-                int[,] S3 = (int[,])S[2];
-                int[,] S4 = (int[,])S[3];
-                int[,] S5 = (int[,])S[4];
-                int[,] S6 = (int[,])S[5];
-                int[,] S7 = (int[,])S[6];
-                int[,] S8 = (int[,])S[7];
+                S1 = (int[,])S[0].Clone();
+                S2 = (int[,])S[1].Clone();
+                S3 = (int[,])S[2].Clone();
+                S4 = (int[,])S[3].Clone();
+                S5 = (int[,])S[4].Clone();
+                S6 = (int[,])S[5].Clone();
+                S7 = (int[,])S[6].Clone();
+                S8 = (int[,])S[7].Clone();
                 P = hT.PTable();
+                FinalIPTable = hT.FinalIPTable();
 
             }
-            //RegulateEncryption();
+            RegulateEncryption();
         }
 
         public void Dispose()
@@ -101,19 +107,11 @@ namespace DESEncode.Encryption
                 while (encWord.Length % 64 != 0) {
 
                     sb.Append("0");
-                    encWord += sb.ToString();
                 }
 
-                if (encWord.Length % 2 != 0)
-                {
-
-                    while (encWord.Length % 2 != 0)
-                    {
-                        sb.Append("0");
-                        encWord += sb.ToString();
-                    }
-                }
             }
+
+            encWord += sb.ToString();
 
             for (int i = 0; i < encWord.Length; i+=64) bits64.Add(encWord.Substring(i, 64));
 
@@ -141,7 +139,7 @@ namespace DESEncode.Encryption
         public void IP()
         {
 
-            bits64.Add("0000000100100011010001010110011110001001101010111100110111101111");
+            //bits64.Add("0000000100100011010001010110011110001001101010111100110111101111");
 
             StringBuilder sb = new StringBuilder();
 
@@ -201,8 +199,8 @@ namespace DESEncode.Encryption
         public void GenerateSubkeys()
         {
 
-            leftBits28.Add("1111000011001100101010101111");
-            rightBits28.Add("0101010101100110011110001111");
+            //leftBits28.Add("1111000011001100101010101111");
+            //rightBits28.Add("0101010101100110011110001111");
 
             int leftShifts;
             int[] singleLS = { 0, 1, 8, 15 };
@@ -210,7 +208,7 @@ namespace DESEncode.Encryption
             using (Shifter sf = new Shifter())
             {
 
-                for (int i = 0; i < 17; i++)
+                for (int i = 0; i < 16; i++)
                 {
 
                     if (singleLS.Contains(i))
@@ -248,12 +246,14 @@ namespace DESEncode.Encryption
                 {
 
                     sb.Append(listSum.ElementAt(PC2Table[j]));
-                    if(j % 6 == 5 && j < PC2Table.Count() - 1) sb.Append(" ");
+                    //if(j % 6 == 5 && j < PC2Table.Count() - 1) sb.Append(" ");
                 }
 
                 bits48PC.Add(sb.ToString());
                 sb.Clear();
             }
+
+            ExchangeHandle();
 
         }
 
@@ -263,13 +263,60 @@ namespace DESEncode.Encryption
             string binaryString;
             string reformedBits;
 
+            eLeftBits32.Add(rightBits32[0]);
+            binaryString = XorFunction(rightBits32[0], bits48PC[0]);
+            reformedBits = PermutateXoredBinary(Reform6BitBlocks(binaryString));
+            eRightBits32.Add(BinaryAddition(leftBits32[0], reformedBits));
+
             for (int i = 1; i < 17; i++) {
 
-                eLeftBits32.Add(rightBits32[i-1]);
-
-                binaryString = XorFunction(rightBits32[i - 1], bits48PC[i - 1]);
+                eLeftBits32.Add(eRightBits32[i]);
+                binaryString = XorFunction(eRightBits32[i], bits48PC[i]);
                 reformedBits = PermutateXoredBinary(Reform6BitBlocks(binaryString));
-                eRightBits32.Add(BinaryAddition(leftBits32[i-1], reformedBits));
+                eRightBits32.Add(BinaryAddition(eLeftBits32[i], reformedBits));
+            }
+
+            FinalPermutation();
+        }
+
+        private void FinalPermutation()
+        {
+
+            hashedWord = eLeftBits32.Last() + eRightBits32.Last();
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < FinalIPTable.Count(); i++)
+            {
+
+                sb.Append(hashedWord.ElementAt(FinalIPTable[i]));
+            }
+
+            hashedWord = sb.ToString();
+            GetEncryptedMessage();
+        }
+
+        private void GetEncryptedMessage()
+        {
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < hashedWord.Count(); i++)
+            {
+
+                sb.Append(hashedWord[i]);
+                if (i % 4 == 3 && i < hashedWord.Count() - 1)
+                {
+
+                    hashedMessage.Add(sb.ToString());
+                    sb.Clear();
+                }
+            }
+
+            hashedWord = "";
+
+            using (HashTable hashTable = new HashTable())
+            {
+                    hashedWord += hashTable.BinaryToHexString(hashedMessage);
             }
         }
 
@@ -281,19 +328,33 @@ namespace DESEncode.Encryption
             string[] binaries = { "", "", "" };
             string binaryString = "";
             int[] decimals = { 0, 0, 0 };
+            bool carry = false;
 
-            for (int i = 0; i < reformedBits.Count(); i += 6)
+            for (int i = reformedBits.Length; i >= 4; i -= 4)
             {
 
-                binaries[0] = sb.Append(leftBits.Substring(i, 4)).ToString();
+                binaries[0] = sb.Append(leftBits.Substring(i-4, 4)).ToString();
                 sb.Clear();
-                binaries[1] = sb.Append(reformedBits.Substring(i, 4)).ToString();
+                binaries[1] = sb.Append(reformedBits.Substring(i-4, 4)).ToString();
                 sb.Clear();
+
                 decimals[0] = Convert.ToInt32(binaries[0], 2);
                 decimals[1] = Convert.ToInt32(binaries[1], 2);
-                decimals[2] = decimals[0] + decimals[1];
+
+                if (carry)
+                {
+                    decimals[2] = decimals[0] + decimals[1] + 1;
+                    carry = false;
+                }
+                else decimals[2] = decimals[0] + decimals[1];
+
+
+
                 binaries[2] = Convert.ToString(decimals[2], 2).PadLeft(4, '0');
-                binaryString += binaries[2];
+                if (binaries[2].Length == 5) carry = true;
+
+                if (carry) binaries[2] = binaries[2].Substring(1, 4);
+                binaryString = string.Format("{0}{1}", binaries[2], binaryString);
             }
 
             return binaryString;
@@ -438,6 +499,12 @@ namespace DESEncode.Encryption
 
             return reformedBits;
 
+        }
+
+        public string HashedValue()
+        {
+
+            return hashedWord;
         }
 
 

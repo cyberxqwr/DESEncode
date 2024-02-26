@@ -19,6 +19,16 @@ namespace DESEncode.Encryption
             60, 52, 44, 36, 28, 20, 12, 4,
             62, 54, 46, 38, 30, 22, 14, 6   };
 
+        private readonly int[] FinalIP =
+        {   39, 7, 47, 15, 55, 23, 63, 31,
+            38, 6, 46, 14, 54, 22, 62, 30,
+            37, 5, 45, 13, 53, 21, 61, 29,
+            36, 4, 44, 12, 52, 20, 60, 28,
+            35, 3, 43, 11, 51, 19, 59, 27,
+            34, 2, 42, 10, 50, 18, 58, 26,
+            33, 1, 41, 9, 49, 17, 57, 25,
+            32, 0, 40, 8, 48, 16, 56, 24};
+
         private readonly int[] PC =
         {   56, 48, 40, 32, 24, 16, 8,
             0, 57, 49, 41, 33, 25, 17,
@@ -134,6 +144,12 @@ namespace DESEncode.Encryption
             return IP;
         }
 
+        public int[] FinalIPTable()
+        {
+            
+            return FinalIP;
+        }
+
         public int[] PTable()
         {
             return P;
@@ -187,6 +203,39 @@ namespace DESEncode.Encryption
             foreach (char hexChar in hexString) {
 
                 if (hexMap.TryGetValue(hexChar, out string binString)) bin.Append(binString);
+
+            }
+
+            return bin.ToString();
+        }
+
+        public string BinaryToHexString(List<string> binaryString)
+        {
+            StringBuilder bin = new StringBuilder();
+
+            Dictionary<string, char> hexMap = new Dictionary<string, char>{
+            { "0000", '0'},
+            { "0001", '1'},
+            { "0010", '2'},
+            { "0011", '3'},
+            { "0100", '4'},
+            { "0101", '5'},
+            { "0110", '6'},
+            { "0111", '7'},
+            { "1000", '8'},
+            { "1001", '9'},
+
+            { "1010", 'A'},
+            { "1011", 'B'},
+            { "1100", 'C'},
+            { "1101", 'D'},
+            { "1110", 'E'},
+            { "1111", 'F'}};
+
+            foreach (string text in binaryString)
+            {
+
+                if (hexMap.TryGetValue(text, out char hexVal)) bin.Append(hexVal);
 
             }
 

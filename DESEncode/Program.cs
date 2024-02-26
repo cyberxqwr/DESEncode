@@ -13,7 +13,7 @@ namespace DESEncode
         static void Main(string[] args)
         {
 
-            //Wspc wspc = new Wspc();
+            Wspc wspc = new Wspc();
             //StringBuilder sb = new StringBuilder();
             //string text = "Your lips are smoother than vaseline";
             //foreach (char c in text)
@@ -38,31 +38,32 @@ namespace DESEncode
             //HashTable hT = new HashTable();
             //Array[] S = hT.STable();
             //int[,] S1 = (int[,])S[0];
-            string binaryString = "011000 010001 011110 111010 100001 100110 010100 100111";
+            //string binaryString = "011000 010001 011110 111010 100001 100110 010100 100111";
 
-            List<string> temp6Bits = new List<string>();
+            //List<string> temp6Bits = new List<string>();
 
-            StringBuilder sb = new StringBuilder();
+            //StringBuilder sb = new StringBuilder();
 
-            foreach (char c in binaryString)
-            {
-                if (c != ' ')
-                {
-                    sb.Append(c);
-                }
-                else
-                {
-                    temp6Bits.Add(sb.ToString());
-                    sb.Clear();
-                }
+            //foreach (char c in binaryString)
+            //{
+            //    if (c != ' ')
+            //    {
+            //        sb.Append(c);
+            //    }
+            //    else
+            //    {
+            //        temp6Bits.Add(sb.ToString());
+            //        sb.Clear();
+            //    }
 
-            }
+            //}
 
-            sb.Clear();
+            //sb.Clear();
 
-            sb.Append(temp6Bits[1].First()).ToString();
-            string rowString = sb.Append(temp6Bits[1].Last()).ToString();
-            Console.WriteLine(rowString);
+            //sb.Append(temp6Bits[1].First()).ToString();
+            //string rowString = sb.Append(temp6Bits[1].Last()).ToString();
+            
+            //Console.WriteLine();
         }
     }
 }
