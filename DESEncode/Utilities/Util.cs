@@ -10,6 +10,7 @@ namespace DESEncode.Utilities
     {
 
         public List<string> options = new List<string>();
+        public List<string> optionsLibrary = new List<string>();
         public List<string> exceptions = new List<string>();
         public List<string> info = new List<string>();
 
@@ -21,8 +22,14 @@ namespace DESEncode.Utilities
             options.Add("[0] - Užbaigti programą");
             options.Add("[1] - Pradėti DES algoritmo šifravimą");
             options.Add("[2] - Pradėti DES algoritmo iššifravimą");
-            options.Add("[3] - ");
-            options.Add("[4] - ");
+            options.Add("[3] - Naudoti bibliotekas");
+            options.Add("Įveskite bitus:");
+            options.Add("Įveskite '-' norėdami nutraukti įvedimą:");
+            optionsLibrary.Add("[9] - Išeiti iš meniu");
+            optionsLibrary.Add("[1] - CBC šifravimas");
+            optionsLibrary.Add("[2] - CBC iššifravimas");
+            optionsLibrary.Add("[3] - CFB šifravimas");
+            optionsLibrary.Add("[4] - CFB iššifravimas");
 
             exceptions.Add("Klaida. Neįvestas tekstas. Įveskite jį vėl.");
             exceptions.Add("Klaida. Neįvestas raktas. Įveskite jį vėl.");
@@ -31,6 +38,8 @@ namespace DESEncode.Utilities
 
             info.Add("Jūsų užšifruotas tekstas: ");
             info.Add("Jūsų iššifruotas tekstas: ");
+            info.Add("Ivestis atlikta.");
+            info.Add("Iveskite IV.");
         }
     }
 }

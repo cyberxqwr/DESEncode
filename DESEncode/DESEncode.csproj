@@ -43,7 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Encryption\FileReader.cs" />
     <Compile Include="Encryption\HashTable.cs" />
+    <Compile Include="Encryption\LibraryHashing.cs" />
     <Compile Include="Encryption\Shifter.cs" />
     <Compile Include="Encryption\TextHash.cs" />
     <Compile Include="Program.cs" />

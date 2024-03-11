@@ -14,6 +14,10 @@ namespace DESEncode.Workspace
     {
 
         private int option;
+        private byte[] bits;
+        private byte[] IVbits;
+        private List<byte> bitsList = new List<byte>();
+        private List<byte> ivList = new List<byte>();
         private string encWord;
         private string key;
         private int programInput = -1;
@@ -24,12 +28,11 @@ namespace DESEncode.Workspace
 
             while (programInput != 0)
             {
-
+                Console.Clear();
                 Console.WriteLine(util.options.ElementAt(2));
                 Console.WriteLine(util.options.ElementAt(3));
                 Console.WriteLine(util.options.ElementAt(4));
                 Console.WriteLine(util.options.ElementAt(5));
-                Console.WriteLine(util.options.ElementAt(6));
                 int.TryParse(Console.ReadLine(), out programInput);
 
                 switch (programInput)
@@ -39,14 +42,64 @@ namespace DESEncode.Workspace
                         StartHashing(1, 0);
                         break;
                     case 2:
+                        if (FileReader.FileExists("CBCEnc.txt"))
+                        {
+                            if (!AskForReading()) StartReading(1);
+                            else ReadCertainFile(0);
+                        }
                         StartReading(1);
                         StartHashing(2, 1);
                         break;
                     case 3:
-                        //StartReading();
-                        break;
-                    case 4:
-                        //StartReading();
+                        while (programInput != 9)
+                        {
+                            Console.Clear();
+                            Console.WriteLine(util.options.ElementAt(2));
+                            Console.WriteLine(util.optionsLibrary.ElementAt(0));
+                            Console.WriteLine(util.optionsLibrary.ElementAt(1));
+                            Console.WriteLine(util.optionsLibrary.ElementAt(2));
+                            Console.WriteLine(util.optionsLibrary.ElementAt(3));
+                            Console.WriteLine(util.optionsLibrary.ElementAt(4));
+                            int.TryParse(Console.ReadLine(), out programInput);
+
+                            switch (programInput)
+                            {
+
+                                case 0:
+                                    return;
+                                case 9:
+                                    break;
+                                case 1:
+                                    StartReading(null);
+                                    StartLibraryHashing(1);
+                                    break;
+                                case 2:
+
+                                    if (FileReader.FileExists("CBCEnc.txt"))
+                                    {
+                                        if (!AskForReading()) StartReading(2);
+                                        else ReadCertainFile(1);
+                                    }
+                                    else StartReading(2);
+                                    StartLibraryHashing(2);
+                                    break;
+                                case 3:
+                                    StartReading(null);
+                                    StartLibraryHashing(3);
+                                    break;
+                                case 4:
+                                    if (FileReader.FileExists("CFBEnc.txt"))
+                                    {
+                                        if (!AskForReading()) StartReading(2);
+                                        else ReadCertainFile(2);
+                                    }
+                                    else StartReading(2);
+                                    StartLibraryHashing(4);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                         break;
                     case 0:
                         return;
@@ -59,6 +112,97 @@ namespace DESEncode.Workspace
 
         }
 
+        // 0 - ECB
+        // 1 - CBC
+        // 2 - CFB
+
+        private void ReadCertainFile(int decryptMode)
+        {
+
+            switch (decryptMode)
+            {
+                case 0:
+                    encWord = FileReader.ReadFileToString("ECBEnc.txt");
+                    StartReading(3);
+                    break;
+                case 1:
+                    SetData(FileReader.ReadFileToString("CBCEnc.txt"));
+                    StartReading(4);
+                    break;
+                case 2:
+                    SetData(FileReader.ReadFileToString("CFBEnc.txt"));
+                    StartReading(4);
+                    break;
+            }
+        }
+
+        private void SetData(string plainText)
+        {
+
+            StringBuilder sb = new StringBuilder();
+            byte byteInput;
+            int encPos = 0;
+
+            for (int i = 0; i < plainText.Count(); i++)
+            {
+
+
+                if (plainText[i] != '-')
+                {
+                    if (plainText[i] != ' ')
+                    {
+                        sb.Append(plainText[i]);
+                    }
+                    else
+                    {
+                        byte.TryParse(sb.ToString(), out byteInput);
+                        ivList.Add(byteInput);
+                        sb.Clear();
+                    }
+                }
+                else
+                {
+                    encPos = i + 1;
+                    break;
+                }
+            }
+
+            for (int i = encPos; i < plainText.Count(); i++)
+            {
+
+                if (plainText[i] != ' ')
+                {
+                    sb.Append(plainText[i]);
+                }
+                else
+                {
+                    byte.TryParse(sb.ToString(), out byteInput);
+                    bitsList.Add(byteInput);
+                    sb.Clear();
+                }
+            }
+
+            IVbits = ivList.ToArray();
+            bits = bitsList.ToArray();
+        }
+
+        private bool AskForReading()
+        {
+
+            Console.WriteLine("Ar norite nuskaityti is failo?");
+            Console.WriteLine("[Y] - Taip / [N] - Ne");
+            string input;
+            input = Console.ReadLine();
+            do
+            {
+
+                if (input == "Y" || input == "y") return true;
+
+            } while (input != "N" && input != "n");
+
+            return false;
+        }
+
         private string TurnIntoHex(string text)
         {
             StringBuilder sb = new StringBuilder();
@@ -66,37 +210,129 @@ namespace DESEncode.Workspace
             foreach (char c in text)
             {
                 if (c != ' ') { sb.Append(Convert.ToByte(c).ToString("x")); }
-                else { sb.Append(c); }
 
             }
 
             return sb.ToString();
         }
 
-        private void StartReading(int option)
+        // 0 - ECB (message and key)
+        // 1 - ECB (message hex and key)
+        // null - CBC and CFB encryption reading
+        // 2 - CBC and CFB decrypting (reading bytes and iv)
+        // 3 - read from file ECB (only key needed and turning into binary)
+        // 4 - read from file CBC/CFB (only key)
+
+        private void StartReading(int? option)
         {
 
-            Console.WriteLine(util.options.ElementAt(0));
-            encWord = Console.ReadLine();
-
-            if (encWord.Length == 0)
+            if (option != 4)
             {
-
-                while (encWord.Length == 0)
+                if (option == 0 || option == 1 || option == null || option == 3)
                 {
 
-                    Console.WriteLine(util.exceptions.ElementAt(0));
-                    encWord = Console.ReadLine();
+                    if (option != 3)
+                    {
+                        Console.WriteLine(util.options.ElementAt(0));
+                        encWord = Console.ReadLine();
+
+                        if (encWord.Length == 0)
+                        {
+
+                            while (encWord.Length == 0)
+                            {
+
+                                Console.WriteLine(util.exceptions.ElementAt(0));
+                                encWord = Console.ReadLine();
+                            }
+
+                        }
+                    }
+
+                    using (HashTable hashTable = new HashTable())
+                    {
+
+                        if (option == 0 || option == null) encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
+                        else if (option == 1 || option == 3) encWord = hashTable.HexStringToBinary(encWord);
+                    }
                 }
+                else
+                {
 
-            }
+                    Console.WriteLine(util.options.ElementAt(6));
+                    Console.WriteLine(util.options.ElementAt(7));
+                    string input = "+";
+                    byte byteInput;
+
+                    StringBuilder sb = new StringBuilder();
+
+                    while (input != "-")
+                    {
+
+                        input = Console.ReadLine();
+                        if (input != "-")
+                        {
+                            for (int i = 0; i < input.Count(); i++)
+                            {
+                                if (input[i] != ' ')
+                                {
+                                    sb.Append(input[i]);
+                                }
+                                else
+                                {
+                                    byte.TryParse(sb.ToString(), out byteInput);
+                                    bitsList.Add(byteInput);
+                                    sb.Clear();
+                                }
+                            }
+                        }
+                        else if (input == "-")
+                        {
+                            break;
+                        }
+                        else Console.WriteLine("Neteisinga ivestis");
+                    }
 
 
-            using (HashTable hashTable = new HashTable())
-            {
-                
-                if (option == 0) encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
-                    else encWord = hashTable.HexStringToBinary(encWord);
+                    Console.WriteLine(util.info.ElementAt(2));
+                    Console.WriteLine(util.info.ElementAt(3));
+
+                    input = "+";
+
+                    sb.Clear();
+
+                    while (input != "-")
+                    {
+
+                        input = Console.ReadLine();
+                        if (input != "-")
+                        {
+                            for (int i = 0; i < input.Count(); i++)
+                            {
+                                if (input[i] != ' ')
+                                {
+                                    sb.Append(input[i]);
+                                }
+                                else
+                                {
+                                    byte.TryParse(sb.ToString(), out byteInput);
+                                    ivList.Add(byteInput);
+                                    sb.Clear();
+                                }
+                            }
+                        }
+                        else if (input == "-")
+                        {
+                            break;
+                        }
+                        else Console.WriteLine("Neteisinga ivestis");
+                    }
+
+                    Console.WriteLine(util.info.ElementAt(2));
+
+                    IVbits = ivList.ToArray();
+                    bits = bitsList.ToArray();
+                }
             }
 
             Console.WriteLine(util.options.ElementAt(1));
@@ -113,10 +349,10 @@ namespace DESEncode.Workspace
                 }
             }
 
+            if (key.Length > 64) key = key.Substring(0, 64);
+
             using (HashTable hashTable = new HashTable())
             {
-
-                //key = hashTable.HexStringToBinary("133457799BBCDFF1");
 
                 key = hashTable.HexStringToBinary(TurnIntoHex(key));
             }
@@ -133,17 +369,53 @@ namespace DESEncode.Workspace
                 {
                     case 1:
                         Console.WriteLine(util.info.ElementAt(0) + ENC.CryptedMessageValue());
+                        Console.ReadKey();
                         break;
                     case 2:
                         Console.WriteLine(util.info.ElementAt(1) + ENC.DecryptedMessageValue());
-                        break;
-                    case 3:
-                        //Console.WriteLine(util.info.ElementAt(1) + ENC.StartUnhashing());
-                        break;
-                    case 4:
-
+                        Console.ReadKey();
                         break;
                 }
+
+            }
+
+        }
+
+        private void StartLibraryHashing(int parameter)
+        {
+
+            switch (parameter)
+            {
+                case 1:
+                    using (LibraryHashing ENC = new LibraryHashing(encWord, key))
+                    {
+                        Console.WriteLine();
+                        ENC.EncryptCbcUser();
+                        Console.ReadKey();
+                    }
+                    break;
+                case 2:
+                    using (LibraryHashing ENC = new LibraryHashing(bits, IVbits, key))
+                    {
+                        Console.WriteLine(util.info.ElementAt(1) + ENC.DecryptCbcUser());
+                        Console.ReadKey();
+                    }
+                    break;
+                case 3:
+                    using (LibraryHashing ENC = new LibraryHashing(encWord, key))
+                    {
+                        Console.WriteLine();
+                        ENC.EncryptCfbUser();
+                        Console.ReadKey();
+                    }
+                    break;
+                case 4:
+                    using (LibraryHashing ENC = new LibraryHashing(bits, IVbits, key))
+                    {
+                        Console.WriteLine(util.info.ElementAt(1) + ENC.DecryptCfbUser());
+                        Console.ReadKey();
+                    }
+                    break;
 
             }
 

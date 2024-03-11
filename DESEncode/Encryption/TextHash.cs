@@ -157,26 +157,24 @@ namespace DESEncode.Encryption
         public void IP()
         {
 
-            //bits64.Add("0000000100100011010001010110011110001001101010111100110111101111");
-
             StringBuilder sb = new StringBuilder();
 
-                for (int i = 0; i < bits64.Count(); i++)
+            for (int i = 0; i < bits64.Count(); i++)
+            {
+
+                for (int j = 0; j < IPTable.Count(); j++)
                 {
 
-                    for (int j = 0; j < IPTable.Count(); j++)
-                    {
-
-                        sb.Append(bits64[i].ElementAt(IPTable.ElementAt(j)));
-                    }
-
-                    bits64IP.Add(sb.ToString());
-
-                    sb.Clear();
+                    sb.Append(bits64[i].ElementAt(IPTable.ElementAt(j)));
                 }
 
-                Split64Bits();
-            
+                bits64IP.Add(sb.ToString());
+
+                sb.Clear();
+            }
+
+            Split64Bits();
+
         }
 
         private void Split64Bits()
@@ -192,14 +190,12 @@ namespace DESEncode.Encryption
 
         private void TransformTo56Bits()
         {
-            //key = "0001001100110100010101110111100110011011101111001101111111110001";
             StringBuilder sb = new StringBuilder();
 
             for (int i = 0; i < PCTable.Count(); i++)
             {
 
                 sb.Append(key[PCTable[i]]);
-                //if (i % 7 == 6 && i < PCTable.Count()) sb.Append(' ');
             }
 
             keyPC = sb.ToString();
@@ -214,9 +210,6 @@ namespace DESEncode.Encryption
 
         public void GenerateSubkeys()
         {
-
-            //leftBits28.Add("1111000011001100101010101111");
-            //rightBits28.Add("0101010101100110011110001111");
 
             int leftShifts;
             int[] singleLS = { 0, 1, 8, 15 };
@@ -235,9 +228,6 @@ namespace DESEncode.Encryption
 
                     leftBits28.Add(sf.ShiftLeft(leftShifts, leftBits28.ElementAt(i)));
                     rightBits28.Add(sf.ShiftLeft(leftShifts, rightBits28.ElementAt(i)));
-                    //Console.WriteLine("C" + i + " = " + leftBits28[i]);
-                    //Console.WriteLine("D" + i + " = " + rightBits28[i]);
-                    //Console.WriteLine();
 
                 }
 
@@ -262,7 +252,6 @@ namespace DESEncode.Encryption
                 {
 
                     sb.Append(listSum.ElementAt(PC2Table[j]));
-                    //if(j % 6 == 5 && j < PC2Table.Count() - 1) sb.Append(" ");
                 }
 
                 bits48PC.Add(sb.ToString());
@@ -381,12 +370,9 @@ namespace DESEncode.Encryption
 
             string reformed;
 
-            //rightBits = "11110000101010101111000010101010";
-            //Console.WriteLine("Bits before expansion = " + rightBits);
-
             StringBuilder sb = new StringBuilder();
             rightBits = ExpandRightBits(rightBits);
-            //Console.WriteLine("Bits after expansion = " + rightBits);
+
             string[] binaries = { "", "", "" };
             string binaryString = "";
             int[] decimals = { 0, 0, 0 };
@@ -411,7 +397,6 @@ namespace DESEncode.Encryption
         private string ExpandRightBits(string rightBits)
         {
 
-            //rightBits = "11110000101010101111000010101010";
 
             StringBuilder sb = new StringBuilder();
 
@@ -419,7 +404,6 @@ namespace DESEncode.Encryption
             {
 
                 sb.Append(rightBits.ElementAt(EBIT[i]));
-                //if (i % 6 == 5 && i < EBIT.Count() - 1) { sb.Append(" "); }
             }
 
             return sb.ToString();
@@ -507,6 +491,22 @@ namespace DESEncode.Encryption
 
         public string CryptedMessageValue()
         {
+            Console.WriteLine("Ar norite irasyti i faila?");
+            Console.WriteLine("[Y] - Taip / [N] - Ne");
+            string input;
+            input = Console.ReadLine();
+            do
+            {
+
+                if (input == "Y" || input == "y")
+                {
+
+                    FileReader.WriteEncryptedMessageToFile("ECBEnc.txt", cryptedMessage);
+                    Console.WriteLine("\n\nFailas irasytas\n\n");
+                    break;
+                }
+
+            } while (input != "N" && input != "n");
 
             return cryptedMessage;
         }
@@ -516,7 +516,6 @@ namespace DESEncode.Encryption
 
             string binaryString;
             string reformedBits;
-            //SplitCryptedMessageBits();
 
             for (int i = 0; i < leftBits32.Count; i++)
             {
@@ -547,61 +546,6 @@ namespace DESEncode.Encryption
         {
 
             return decryptedMessage;
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public string StartHashing()
-        {
-
-            HashText();
-            return hashedWord;
-        }
-
-        private void HashText()
-        {
-
-            StringBuilder sb = new StringBuilder();
-
-            hashedWord = sb.ToString();
-        }
-
-        public string StartUnhashing()
-        {
-            UnhashText();
-            return hashedWord;
-        }
-
-        private void UnhashText()
-        {
-
-            StringBuilder sb = new StringBuilder();
-
-            hashedWord = sb.ToString();
         }
 
     }
