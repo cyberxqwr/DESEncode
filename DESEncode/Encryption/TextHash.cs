@@ -109,10 +109,10 @@ namespace DESEncode.Encryption
             if (option == 0)
             {
 
-                if (encWord.Length / 64 != 1)
+                if (encWord.Length % 64 != 0)
                 {
 
-                    while (encWord.Length / 64 != 1)
+                    while (encWord.Length % 64 != 0)
                     {
 
                         sb.Append("0");
@@ -128,6 +128,12 @@ namespace DESEncode.Encryption
 
                 sb.Clear();
 
+            }
+            else
+            {
+
+                for (int i = 0; i < encWord.Length; i += 64) bits64.Add(encWord.Substring(i, 64));
+                IP();
             }
 
             if (key.Length / 64 != 1)
@@ -155,8 +161,6 @@ namespace DESEncode.Encryption
 
             StringBuilder sb = new StringBuilder();
 
-            if (option == 0)
-            {
                 for (int i = 0; i < bits64.Count(); i++)
                 {
 
@@ -172,21 +176,7 @@ namespace DESEncode.Encryption
                 }
 
                 Split64Bits();
-            }
-            else
-            {
-
-                hashedWord = eRightBits32.Last() + eLeftBits32.Last();
-
-                for (int i = 0; i < IPTable.Count(); i++)
-                {
-
-                    sb.Append(hashedWord.ElementAt(IPTable.ElementAt(i)));
-                }
-
-                GetEncryptedMessage();
-            }
-
+            
         }
 
         private void Split64Bits()
@@ -280,7 +270,7 @@ namespace DESEncode.Encryption
             }
 
             if (option == 0) ExchangeHandle();
-            else DecryptFinalPermutation();
+            else DecryptExchangeHandle();
 
         }
 
@@ -350,7 +340,9 @@ namespace DESEncode.Encryption
             using (HashTable hashTable = new HashTable())
             {
                 if (option == 0) cryptedMessage += hashTable.BinaryToHexString(hashedMessage) + " ";
-                else decryptedMessage += hashTable.HexToString(hashTable.BinaryToHexString(hashedMessage));
+                else decryptedMessage += hashTable.HexToString(hashTable.BinaryToHexString(hashedMessage)) + " ";
+
+                hashedMessage.Clear();
             }
         }
 
@@ -519,27 +511,12 @@ namespace DESEncode.Encryption
             return cryptedMessage;
         }
 
-        private void DecryptFinalPermutation()
-        {
-
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < FinalIPTable.Count(); i++)
-            {
-
-                sb.Append(encWord.ElementAt(FinalIPTable[i]));
-            }
-
-            encWord = sb.ToString();
-            DecryptExchangeHandle();
-        }
-
         private void DecryptExchangeHandle()
         {
 
             string binaryString;
             string reformedBits;
-            SplitCryptedMessageBits();
+            //SplitCryptedMessageBits();
 
             for (int i = 0; i < leftBits32.Count; i++)
             {
@@ -561,20 +538,9 @@ namespace DESEncode.Encryption
                     eRightBits32.Add(XorBeforeFP(eLeftBits32[j], reformedBits));
                 }
 
-                IP();
+                FinalPermutation();
             }
 
-        }
-
-        private void SplitCryptedMessageBits()
-        {
-
-            for (int i = 0; i < encWord.Length; i += 64)
-            {
-
-                leftBits32.Add(encWord.Substring(i, 32));
-                rightBits32.Add(encWord.Substring(i + 32, 32));
-            }
         }
 
         public string DecryptedMessageValue()
