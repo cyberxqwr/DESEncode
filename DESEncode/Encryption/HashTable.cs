@@ -200,7 +200,7 @@ namespace DESEncode.Encryption
             { 'E', "1110"},
             { 'F', "1111"}};
 
-            foreach (char hexChar in hexString) {
+            foreach (char hexChar in hexString.ToUpper()) {
 
                 if (hexMap.TryGetValue(hexChar, out string binString)) bin.Append(binString);
 
@@ -241,5 +241,17 @@ namespace DESEncode.Encryption
 
             return bin.ToString();
         }
+
+        public string HexToString(string hexString)
+        {
+
+            byte[] bytes = Enumerable.Range(0, hexString.Length)
+                 .Where(x => x % 2 == 0)
+                 .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
+                 .ToArray();
+
+            return Encoding.UTF8.GetString(bytes);
+        }
+
     }
 }

@@ -20,7 +20,7 @@ namespace DESEncode.Utilities
             options.Add("Įveskite raktą:");
             options.Add("[0] - Užbaigti programą");
             options.Add("[1] - Pradėti DES algoritmo šifravimą");
-            options.Add("[2] - ");
+            options.Add("[2] - Pradėti DES algoritmo iššifravimą");
             options.Add("[3] - ");
             options.Add("[4] - ");
 
@@ -30,7 +30,7 @@ namespace DESEncode.Utilities
             exceptions.Add("");
 
             info.Add("Jūsų užšifruotas tekstas: ");
-            info.Add("Jūsų iššifruotas slaptažodis: ");
+            info.Add("Jūsų iššifruotas tekstas: ");
         }
     }
 }

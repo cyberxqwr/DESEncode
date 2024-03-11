@@ -13,7 +13,7 @@ namespace DESEncode.Workspace
     public class Wspc
     {
 
-        private Regex par = new Regex("[^a-zA-Z0-9]");
+        private int option;
         private string encWord;
         private string key;
         private int programInput = -1;
@@ -35,17 +35,18 @@ namespace DESEncode.Workspace
                 switch (programInput)
                 {
                     case 1:
-                        StartReading();
-                        StartHashing(1);
+                        StartReading(0);
+                        StartHashing(1, 0);
                         break;
                     case 2:
-                        StartReading();
+                        StartReading(1);
+                        StartHashing(2, 1);
                         break;
                     case 3:
-                        StartReading();
+                        //StartReading();
                         break;
                     case 4:
-                        StartReading();
+                        //StartReading();
                         break;
                     case 0:
                         return;
@@ -72,7 +73,7 @@ namespace DESEncode.Workspace
             return sb.ToString();
         }
 
-        private void StartReading()
+        private void StartReading(int option)
         {
 
             Console.WriteLine(util.options.ElementAt(0));
@@ -93,8 +94,9 @@ namespace DESEncode.Workspace
 
             using (HashTable hashTable = new HashTable())
             {
-                encWord = hashTable.HexStringToBinary("0123456789ABCDEF"); 
-                //encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
+                
+                if (option == 0) encWord = hashTable.HexStringToBinary(TurnIntoHex(encWord));
+                    else encWord = hashTable.HexStringToBinary(encWord);
             }
 
             Console.WriteLine(util.options.ElementAt(1));
@@ -114,26 +116,26 @@ namespace DESEncode.Workspace
             using (HashTable hashTable = new HashTable())
             {
 
-                key = hashTable.HexStringToBinary("133457799BBCDFF1");
+                //key = hashTable.HexStringToBinary("133457799BBCDFF1");
 
-                //key = hashTable.HexStringToBinary(TurnIntoHex(key));
+                key = hashTable.HexStringToBinary(TurnIntoHex(key));
             }
 
         }
 
-        private void StartHashing(int parameter)
+        private void StartHashing(int parameter, int option)
         {
 
-            using (TextHash ENC = new TextHash(encWord, key))
+            using (TextHash ENC = new TextHash(encWord, key, option))
             {
 
                 switch (parameter)
                 {
                     case 1:
-                        Console.WriteLine(util.info.ElementAt(0) + ENC.HashedValue());
+                        Console.WriteLine(util.info.ElementAt(0) + ENC.CryptedMessageValue());
                         break;
                     case 2:
-
+                        Console.WriteLine(util.info.ElementAt(1) + ENC.DecryptedMessageValue());
                         break;
                     case 3:
                         //Console.WriteLine(util.info.ElementAt(1) + ENC.StartUnhashing());
